@@ -56,7 +56,76 @@ static void MX_TIM2_Init(void);
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+const int MAX_LED = 4;
+int index_led = 0;
+int hour = 10, minute = 9, second = 20;
+int led_buffer[4] = {1,2,3,4};
+int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 
+/* USER CODE END 0 */
+void clearLed() {
+	HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin | EN3_Pin, SET);
+}
+
+void clearPin(int index) {
+  HAL_GPIO_WritePin(GPIOA, pinControll7SEG[index], SET);
+}
+
+void enablePin(int index) {
+	HAL_GPIO_WritePin(GPIOA, pinControll7SEG[index], RESET);
+}
+
+void display7SEG(int num) {
+    char segNumber[10] = {0xC0, 0xF9, 0xA4, 0xB0, 0x99, 0x92, 0x82, 0xF8, 0x80, 0x90};
+    for (int i = 0; i < 7; ++i) {
+        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 << i, (segNumber[num] >> i) & 1);
+    }
+}
+
+void clearEnable(){
+	HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
+	HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
+	HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
+	HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
+}
+
+void update7SEG(int index) {
+	clearLed();
+	clearEnable();
+	switch(index) {
+	 //led_buffer [0]
+	  case 0: {
+		  display7SEG(led_buffer[0]);
+		  enablePin(0);
+		  break;
+	  }
+	  //  led_buffer [1]
+	  case 1: {
+		  display7SEG(led_buffer[1]);
+		  enablePin(1);
+		  break;
+	  }
+	  //  led_buffer [2]
+	  case 2: {
+		  display7SEG(led_buffer[2]);
+		  enablePin(2);
+		  break;
+	  }
+	// led_buffer [3]
+	  case 3: {
+		  display7SEG(led_buffer[3]);
+		  enablePin(3);
+		  break;
+	  }
+	}
+}
+
+void updateClockBuffer() {
+    led_buffer[0] = hour / 10;
+    led_buffer[1] = hour % 10;
+    led_buffer[2] = minute / 10;
+    led_buffer[3] = minute % 10;
+}
 /* USER CODE END 0 */
 
 /**
@@ -97,7 +166,20 @@ int main(void)
   while (1)
   {
     /* USER CODE END WHILE */
-
+	  second++;
+		  if (second >= 60){
+			  second = 0;
+			  minute++;
+		  }
+		  if(minute >= 60){
+			  minute = 0;
+			  hour++;
+		  }
+		  if(hour >= 24){
+			  hour = 0;
+		  }
+		  updateClockBuffer();
+		  HAL_Delay(1000);
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -225,66 +307,7 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-const int MAX_LED = 4;
-int index_led = 0;
-int led_buffer[4] = {1,2,3,4};
-int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 
-void clearLed() {
-	HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin | EN3_Pin, SET);
-}
-void clearEnable(){
-	HAL_GPIO_WritePin(EN0_GPIO_Port, EN0_Pin, 1);
-	HAL_GPIO_WritePin(EN1_GPIO_Port, EN1_Pin, 1);
-	HAL_GPIO_WritePin(EN2_GPIO_Port, EN2_Pin, 1);
-	HAL_GPIO_WritePin(EN3_GPIO_Port, EN3_Pin, 1);
-}
-
-void clearPin(int index) {
-  HAL_GPIO_WritePin(GPIOA, pinControll7SEG[index], SET);
-}
-
-void enablePin(int index) {
-	HAL_GPIO_WritePin(GPIOA, pinControll7SEG[index], RESET);
-}
-void display7SEG(int num) {
-    char segNumber[10] = {0xC0, 0xF9, 0xA4, 0xB0, 0x99, 0x92, 0x82, 0xF8, 0x80, 0x90};
-    for (int i = 0; i < 7; ++i) {
-        HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 << i, (segNumber[num] >> i) & 1);
-    }
-}
-
-
-void update7SEG(int index) {
-	clearLed();
-	clearEnable();
-	switch(index) {
-	 // Display the first 7 SEG with led_buffer [0]
-	  case 0: {
-		  display7SEG(led_buffer[0]);
-		  enablePin(0);
-		  break;
-	  }
-	  // Display the first 7 SEG with led_buffer [1]
-	  case 1: {
-		  display7SEG(led_buffer[1]);
-		  enablePin(1);
-		  break;
-	  }
-	  // Display the first 7 SEG with led_buffer [2]
-	  case 2: {
-		  display7SEG(led_buffer[2]);
-		  enablePin(2);
-		  break;
-	  }
-	  // Display the first 7 SEG with led_buffer [3]
-	  case 3: {
-		  display7SEG(led_buffer[3]);
-		  enablePin(3);
-		  break;
-	  }
-	}
-}
 int counter = 100;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
