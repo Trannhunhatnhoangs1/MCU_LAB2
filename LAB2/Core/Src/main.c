@@ -163,35 +163,44 @@ int main(void)
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  setTimer1(1000);
-  setTimer2(1000);
+     setTimer1(1000);
+     setTimer2(1000);
+     setTimer3(250);
 
-    updateClockBuffer();
+     updateClockBuffer();
     while (1)
     {
-  	  if(timer1_flag == 1) {
-  			HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-  			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-  			setTimer1(2000);
-  		  }
+  	  // LED BLINK AND DOT
+  	  	  if(timer1_flag == 1) {
+  	  		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+  	  		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+  	  		setTimer1(1000);
+  	  	  }
 
-  	  // UPDATE TIME
-  	  if(timer2_flag == 1) {
-  	  second++;
-  		  if (second >= 60){
-  			  second = 0;
-  			  minute++;
-  		  }
-  		  if(minute >= 60){
-  			  minute = 0;
-  			  hour++;
-  	  }
-  	  if(hour >= 24){
-  		  hour = 0;
-  	  }
-  	  updateClockBuffer();
-  	  setTimer2(1000);
+  	  	  // UPDATE TIME
+  	  	  if(timer2_flag == 1) {
+  	  		  second++;
+  	  		  if (second >= 60){
+  	  			  second = 0;
+  	  			  minute++;
+  	  		  }
+  	  		  if(minute >= 60){
+  	  			  minute = 0;
+  	  			  hour++;
+  	  		  }
+  	  		  if(hour >= 24){
+  	  			  hour = 0;
+  	  		  }
+  	  		  updateClockBuffer();
+  	  		  setTimer2(1000);
     }
+  	  	 // UPDATE LED7SEG
+  	  	if(timer3_flag == 1) {
+  	  		  		update7SEG(index_led);
+  	  		  		index_led++;
+  	  		  		if(index_led >= 4) index_led = 0;
+  	  		  		setTimer3(250);
+  	  		  	  }
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -320,23 +329,10 @@ static void MX_GPIO_Init(void)
 
 /* USER CODE BEGIN 4 */
 
-int counter = 100;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
 
 	timer_run();
-
-	if(counter > 0) {
-					counter--;
-					// SWITCH 4 LED7SEG 250ms
-					if(counter % 25 == 0) {
-						update7SEG(index_led++);
-						if(index_led >= 4) index_led = 0;
-					}
-					if (counter == 0) {
-					            counter = 100;
-					        }
-		}
 }
 /* USER CODE END 4 */
 
