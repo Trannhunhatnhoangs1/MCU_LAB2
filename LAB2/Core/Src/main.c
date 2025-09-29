@@ -65,7 +65,7 @@ int index_led_matrix = 0;
 int hour = 10, minute = 9, second = 20;
 int led_buffer[4] = {1,2,3,4};
 int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
-uint8_t matrix_buffer[8] = {0xE7,0xDB,0xBD,0x7E,0x00,0x00,0xFE,0xFE};
+uint8_t matrix_buffer[8] = {0xE7,0xDB,0xBD,0x7E,0x00,0x00,0x7E,0x7E};
 
 
 void clearLed() {
