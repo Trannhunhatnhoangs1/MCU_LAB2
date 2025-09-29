@@ -197,14 +197,17 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_RED_Pin|EN0_Pin|EN1_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
+                          |EN2_Pin|EN3_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
                           |SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : LED_RED_Pin EN0_Pin EN1_Pin */
-  GPIO_InitStruct.Pin = LED_RED_Pin|EN0_Pin|EN1_Pin;
+  /*Configure GPIO pins : DOT_Pin LED_RED_Pin EN0_Pin EN1_Pin
+                           EN2_Pin EN3_Pin */
+  GPIO_InitStruct.Pin = DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
+                          |EN2_Pin|EN3_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -222,14 +225,15 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+
 void clear() {
-	HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin, SET);
+	HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin | EN3_Pin, SET);
 	HAL_GPIO_WritePin(GPIOB, SEG0_Pin | SEG1_Pin | SEG2_Pin |
 							 SEG3_Pin | SEG4_Pin | SEG5_Pin |
 							 SEG6_Pin, SET);
 }
 
-int pinControll7SEG[2] = {EN0_Pin, EN1_Pin};
+int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 
 void enablePin(int index) {
 	HAL_GPIO_WritePin(GPIOA, pinControll7SEG[index], RESET);
@@ -240,22 +244,22 @@ void display7SEG(int num) {
         HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0 << i, (segNumber[num] >> i) & 1);
     }
 }
-
-int counter = 100, status = 1;
-int buffer[2] = {1,2};
-void HAL_TIM_PeriodElapsedCallback (TIM_HandleTypeDef *htim) {
+int counter = 100, status = 0;
+int buffer[4] = {1,2,3,0};
+void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
+{
 	counter--;
 	if(counter == 50 || counter == 0) {
 		if(counter == 0) {
 			counter = 100;
 			HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-
+			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
 		}
 		clear();
 		enablePin(status);
 		display7SEG(buffer[status]);
-		if(status == 0) status = 1;
-		else status = 0;
+		status++;
+		if(status >= 4) status = 0;
 	}
 }
 /* USER CODE END 4 */
