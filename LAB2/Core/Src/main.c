@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2025 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -62,12 +62,14 @@ const int MAX_LED_MATRIX = 8;
 int index_led = 0;
 int index_led_matrix = 0;
 
+int matrix_shift_flag = 0;
+uint8_t shift = 0;
+
 int hour = 10, minute = 9, second = 20;
 int led_buffer[4] = {1,2,3,4};
 int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 uint8_t matrix_buffer[8] = {0xE7,0xDB,0xBD,0x7E,0x00,0x00,0xFE,0xFE};
-
-
+/* USER CODE END 0 */
 void clearLed() {
 	HAL_GPIO_WritePin(GPIOA, EN0_Pin | EN1_Pin | EN2_Pin | EN3_Pin, SET);
 }
@@ -153,40 +155,40 @@ void setMatrix(void){
 	HAL_GPIO_WritePin(ROW6_GPIO_Port, ROW6_Pin, SET);
 	HAL_GPIO_WritePin(ROW7_GPIO_Port, ROW7_Pin, SET);
 }
-
-void updateLEDMatrix(uint8_t index){
+void updateLEDMatrix(uint8_t index, uint8_t shift){
 	setMatrix();
+	uint8_t matrix_buffer_shift = (matrix_buffer[index] << shift) | (matrix_buffer[index] >> (8-shift));
 	switch (index){
 	case 0:
-		setCol(matrix_buffer[0]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW0_GPIO_Port, ROW0_Pin, RESET);
 		break;
 	case 1:
-		setCol(matrix_buffer[1]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW1_GPIO_Port, ROW1_Pin, RESET);
 		break;
 	case 2:
-		setCol(matrix_buffer[2]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW2_GPIO_Port, ROW2_Pin, RESET);
 		break;
 	case 3:
-		setCol(matrix_buffer[3]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW3_GPIO_Port, ROW3_Pin, RESET);
 		break;
 	case 4:
-		setCol(matrix_buffer[4]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW4_GPIO_Port, ROW4_Pin, RESET);
 		break;
 	case 5:
-		setCol(matrix_buffer[5]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW5_GPIO_Port, ROW5_Pin, RESET);
 		break;
 	case 6:
-		setCol(matrix_buffer[6]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW6_GPIO_Port, ROW6_Pin, RESET);
 		break;
 	case 7:
-		setCol(matrix_buffer[7]);
+		setCol(matrix_buffer_shift);
 		HAL_GPIO_WritePin(ROW7_GPIO_Port, ROW7_Pin, RESET);
 		break;
 	default:
@@ -194,8 +196,9 @@ void updateLEDMatrix(uint8_t index){
 	}
 }
 
-/* USER CODE END 0 */
 
+
+/* USER CODE END 0 */
 /**
   * @brief  The application entry point.
   * @retval int
@@ -226,54 +229,58 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
-  setTimer1(1000);
-    setTimer2(1000);
-    setTimer3(250);
 
-    updateClockBuffer();
-   while (1)
-   {
- 	  // LED BLINK AND DOT
- 	  	  if(timer1_flag == 1) {
- 	  		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
- 	  		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
- 	  		setTimer1(1000);
- 	  	  }
+   setTimer1(1000);
+   setTimer2(1000);
+   setTimer3(250);
 
- 	  	  // UPDATE TIME
- 	  	  if(timer2_flag == 1) {
- 	  		  second++;
- 	  		  if (second >= 60){
- 	  			  second = 0;
- 	  			  minute++;
- 	  		  }
- 	  		  if(minute >= 60){
- 	  			  minute = 0;
- 	  			  hour++;
- 	  		  }
- 	  		  if(hour >= 24){
- 	  			  hour = 0;
- 	  		  }
- 	  		  updateClockBuffer();
- 	  		  setTimer2(1000);
-   }
- 	  	 // UPDATE LED7SEG
- 	  	if(timer3_flag == 1) {
- 	  		  		update7SEG(index_led);
- 	  		  		index_led++;
- 	  		  		if(index_led >= 4) index_led = 0;
+   updateClockBuffer();
+  while (1)
+  {
+	  // LED BLINK AND DOT
+	  	  if(timer1_flag == 1) {
+	  		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+	  		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+	  		setTimer1(1000);
+	  	  }
 
+	  	  // UPDATE TIME
+	  	  if(timer2_flag == 1) {
+	  		  second++;
+	  		  if (second >= 60){
+	  			  second = 0;
+	  			  minute++;
+	  		  }
+	  		  if(minute >= 60){
+	  			  minute = 0;
+	  			  hour++;
+	  		  }
+	  		  if(hour >= 24){
+	  			  hour = 0;
+	  		  }
+	  		  updateClockBuffer();
+	  		  setTimer2(1000);
+  }
+	  	 // UPDATE LED7SEG
+	  	if(timer3_flag == 1) {
+	  		  		update7SEG(index_led);
+	  		  		index_led++;
+	  		  		if(index_led >= 4) index_led = 0;
 
- 	  				updateLEDMatrix(index_led_matrix);
- 	  				index_led_matrix++;
- 	  				if(index_led_matrix >= 8) index_led_matrix = 0;
- 	  		  		setTimer3(250);
- 	  		}
+	  		  	     updateLEDMatrix(index_led_matrix, shift);
+	  		  		  index_led_matrix++;
+	  		  		  if(index_led_matrix >= 8) {
+	  		  		  	index_led_matrix = 0;
+	  		  		  	shift++;
+	  		  		  if(shift >= 8) shift = 0;
+	  		  		  		}
+	  		  		setTimer3(250);
+	  		  	  }
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
@@ -337,7 +344,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 7999;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 9;
+  htim2.Init.Period = 65535;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -418,9 +425,9 @@ static void MX_GPIO_Init(void)
 
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
 	timer_run();
 }
+
 /* USER CODE END 4 */
 
 /**
