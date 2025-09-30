@@ -6,7 +6,7 @@
   ******************************************************************************
   * @attention
   *
-  * <h2><center>&copy; Copyright (c) 2025 STMicroelectronics.
+  * <h2><center>&copy; Copyright (c) 2022 STMicroelectronics.
   * All rights reserved.</center></h2>
   *
   * This software component is licensed by ST under BSD 3-Clause license,
@@ -58,7 +58,7 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN 0 */
 const int MAX_LED = 4;
 int index_led = 0;
-int hour = 10, minute = 9, second = 20;
+int hour = 10, minute = 10, second = 01;
 int led_buffer[4] = {1,2,3,4};
 int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 
@@ -93,25 +93,25 @@ void update7SEG(int index) {
 	clearLed();
 	clearEnable();
 	switch(index) {
-	 //led_buffer [0]
+	 // Display the first 7 SEG with led_buffer [0]
 	  case 0: {
 		  display7SEG(led_buffer[0]);
 		  enablePin(0);
 		  break;
 	  }
-	  //  led_buffer [1]
+	  // Display the first 7 SEG with led_buffer [1]
 	  case 1: {
 		  display7SEG(led_buffer[1]);
 		  enablePin(1);
 		  break;
 	  }
-	  //  led_buffer [2]
+	  // Display the first 7 SEG with led_buffer [2]
 	  case 2: {
 		  display7SEG(led_buffer[2]);
 		  enablePin(2);
 		  break;
 	  }
-	// led_buffer [3]
+	  // Display the first 7 SEG with led_buffer [3]
 	  case 3: {
 		  display7SEG(led_buffer[3]);
 		  enablePin(3);
@@ -126,7 +126,6 @@ void updateClockBuffer() {
     led_buffer[2] = minute / 10;
     led_buffer[3] = minute % 10;
 }
-/* USER CODE END 0 */
 
 /**
   * @brief  The application entry point.
@@ -158,40 +157,42 @@ int main(void)
   MX_GPIO_Init();
   MX_TIM2_Init();
   /* USER CODE BEGIN 2 */
-
+  HAL_TIM_Base_Start_IT(&htim2);
   /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
+
+//  clearLed();
   setTimer1(1000);
   setTimer2(1000);
-
-    updateClockBuffer();
-    while (1)
-    {
-  	  if(timer1_flag == 1) {
-  			HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-  			HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-  			setTimer1(2000);
-  		  }
-
-  	  // UPDATE TIME
-  	  if(timer2_flag == 1) {
-  	  second++;
-  		  if (second >= 60){
-  			  second = 0;
-  			  minute++;
-  		  }
-  		  if(minute >= 60){
-  			  minute = 0;
-  			  hour++;
-  	  }
-  	  if(hour >= 24){
-  		  hour = 0;
-  	  }
-  	  updateClockBuffer();
-  	  setTimer2(1000);
-    }
+  updateClockBuffer();
+  while (1)
+  {
+	  // LED BLINK AND DOT
+	  if(timer1_flag == 1) {
+		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		setTimer1(1000);
+	  }
+	  // UPDATE TIME
+	  if(timer2_flag == 1) {
+		  second++;
+		  if (second >= 60){
+			  second = 0;
+			  minute++;
+		  }
+		  if(minute >= 60){
+			  minute = 0;
+			  hour++;
+		  }
+		  if(hour >= 24){
+			  hour = 0;
+		  }
+		  updateClockBuffer();
+		  setTimer2(1000);
+	  }
+    /* USER CODE END WHILE */
     /* USER CODE BEGIN 3 */
   }
   /* USER CODE END 3 */
@@ -253,7 +254,7 @@ static void MX_TIM2_Init(void)
   htim2.Instance = TIM2;
   htim2.Init.Prescaler = 7999;
   htim2.Init.CounterMode = TIM_COUNTERMODE_UP;
-  htim2.Init.Period = 65535;
+  htim2.Init.Period = 9;
   htim2.Init.ClockDivision = TIM_CLOCKDIVISION_DIV1;
   htim2.Init.AutoReloadPreload = TIM_AUTORELOAD_PRELOAD_DISABLE;
   if (HAL_TIM_Base_Init(&htim2) != HAL_OK)
@@ -291,26 +292,26 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOB_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
-                          |EN2_Pin|EN3_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOA, GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
+                          |GPIO_PIN_8|GPIO_PIN_9, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOB, SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
-                          |SEG4_Pin|SEG5_Pin|SEG6_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6, GPIO_PIN_RESET);
 
-  /*Configure GPIO pins : DOT_Pin LED_RED_Pin EN0_Pin EN1_Pin
-                           EN2_Pin EN3_Pin */
-  GPIO_InitStruct.Pin = DOT_Pin|LED_RED_Pin|EN0_Pin|EN1_Pin
-                          |EN2_Pin|EN3_Pin;
+  /*Configure GPIO pins : PA4 PA5 PA6 PA7
+                           PA8 PA9 */
+  GPIO_InitStruct.Pin = GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6|GPIO_PIN_7
+                          |GPIO_PIN_8|GPIO_PIN_9;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SEG0_Pin SEG1_Pin SEG2_Pin SEG3_Pin
-                           SEG4_Pin SEG5_Pin SEG6_Pin */
-  GPIO_InitStruct.Pin = SEG0_Pin|SEG1_Pin|SEG2_Pin|SEG3_Pin
-                          |SEG4_Pin|SEG5_Pin|SEG6_Pin;
+  /*Configure GPIO pins : PB0 PB1 PB2 PB3
+                           PB4 PB5 PB6 */
+  GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_2|GPIO_PIN_3
+                          |GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_6;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
@@ -319,24 +320,17 @@ static void MX_GPIO_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
-
-int counter = 100;
+int counter = 25;
 void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
 {
-
+	if(counter <= 0) {
+		update7SEG(index_led);
+		index_led++;
+		if(index_led >= 4) index_led = 0;
+		counter = 25;
+	}
+	counter--;
 	timer_run();
-
-	if(counter > 0) {
-					counter--;
-					// SWITCH 4 LED7SEG 250ms
-					if(counter % 25 == 0) {
-						update7SEG(index_led++);
-						if(index_led >= 4) index_led = 0;
-					}
-					if (counter == 0) {
-					            counter = 100;
-					        }
-		}
 }
 /* USER CODE END 4 */
 
