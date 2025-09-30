@@ -77,7 +77,7 @@ Disassembly of section .text:
  8000148:	08001e3c 	.word	0x08001e3c
 
 0800014c <clearLed>:
-int hour = 10, minute = 10, second = 01;
+int hour = 10, minute = 8, second = 01;
 int led_buffer[4] = {1,2,3,4};
 int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 
@@ -387,11 +387,11 @@ int main(void)
   HAL_TIM_Base_Start_IT(&htim2);
  8000340:	4825      	ldr	r0, [pc, #148]	; (80003d8 <main+0xac>)
  8000342:	f001 f9c3 	bl	80016cc <HAL_TIM_Base_Start_IT>
+  /* USER CODE END 2 */
 
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-//  clearLed();
   setTimer1(1000);
  8000346:	f44f 707a 	mov.w	r0, #1000	; 0x3e8
  800034a:	f000 f961 	bl	8000610 <setTimer1>

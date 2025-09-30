@@ -58,7 +58,7 @@ static void MX_TIM2_Init(void);
 /* USER CODE BEGIN 0 */
 const int MAX_LED = 4;
 int index_led = 0;
-int hour = 10, minute = 10, second = 01;
+int hour = 10, minute = 8, second = 01;
 int led_buffer[4] = {1,2,3,4};
 int pinControll7SEG[4] = {EN0_Pin, EN1_Pin, EN2_Pin, EN3_Pin};
 
@@ -163,7 +163,6 @@ int main(void)
   /* Infinite loop */
   /* USER CODE BEGIN WHILE */
 
-//  clearLed();
   setTimer1(1000);
   setTimer2(1000);
   updateClockBuffer();
