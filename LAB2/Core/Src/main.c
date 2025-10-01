@@ -195,6 +195,20 @@ void updateLEDMatrix(uint8_t index, uint8_t shift){
 		break;
 	}
 }
+void updateTime(int *hour, int *minute, int *second) {
+    (*second)++;
+    if (*second >= 60) {
+        *second = 0;
+        (*minute)++;
+    }
+    if (*minute >= 60) {
+        *minute = 0;
+        (*hour)++;
+    }
+    if (*hour >= 24) {
+        *hour = 0;
+    }
+}
 
 
 
@@ -238,49 +252,43 @@ int main(void)
    setTimer1(1000);
    setTimer2(1000);
    setTimer3(250);
-
+   setTimer4(125);
+   setTimer5(15);
    updateClockBuffer();
   while (1)
-  {
-	  // LED BLINK AND DOT
-	  	  if(timer1_flag == 1) {
-	  		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
-	  		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
-	  		setTimer1(1000);
-	  	  }
+   {
+    // LED BLINK AND DOT
+	  if(timer1_flag == 1) {
+		HAL_GPIO_TogglePin(LED_RED_GPIO_Port, LED_RED_Pin);
+		HAL_GPIO_TogglePin(DOT_GPIO_Port, DOT_Pin);
+		setTimer1(1000);
+   }
 
-	  	  // UPDATE TIME
-	  	  if(timer2_flag == 1) {
-	  		  second++;
-	  		  if (second >= 60){
-	  			  second = 0;
-	  			  minute++;
-	  		  }
-	  		  if(minute >= 60){
-	  			  minute = 0;
-	  			  hour++;
-	  		  }
-	  		  if(hour >= 24){
-	  			  hour = 0;
-	  		  }
-	  		  updateClockBuffer();
-	  		  setTimer2(1000);
-  }
-	  	 // UPDATE LED7SEG
-	  	if(timer3_flag == 1) {
-	  		  		update7SEG(index_led);
-	  		  		index_led++;
-	  		  		if(index_led >= 4) index_led = 0;
-
-	  		  	     updateLEDMatrix(index_led_matrix, shift);
-	  		  		  index_led_matrix++;
-	  		  		  if(index_led_matrix >= 8) {
-	  		  		  	index_led_matrix = 0;
-	  		  		  	shift++;
-	  		  		  if(shift >= 8) shift = 0;
-	  		  		  		}
-	  		  		setTimer3(250);
-	  		  	  }
+   // UPDATE TIME
+	  if(timer2_flag == 1) {
+		  updateTime(&hour, &minute, &second);
+		  updateClockBuffer();
+		  setTimer2(1000);
+   }
+   // UPDATE LED7SEG
+	if(timer3_flag == 1) {
+				update7SEG(index_led);
+				index_led++;
+				if(index_led >= 4) index_led = 0;
+			    setTimer3(250);
+   }
+   //UPDATE LEDMATRIX
+	if(timer4_flag == 1){
+		      updateLEDMatrix(index_led_matrix, shift);
+		      index_led_matrix++;
+		      if(index_led_matrix >= 8) index_led_matrix = 0;
+		      setTimer4(125);
+	}
+    if(timer5_flag == 1){
+		      shift++;
+		      if(shift >= 8) shift = 0;
+		      setTimer5(15);
+	}
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
