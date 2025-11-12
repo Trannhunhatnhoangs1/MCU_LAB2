@@ -285,7 +285,7 @@ int main(void)
 		      setTimer4(125);
 	}
     if(timer5_flag == 1){
-		      shift++;
+    	shift++;
 		      if(shift >= 8) shift = 0;
 		      setTimer5(15);
 	}

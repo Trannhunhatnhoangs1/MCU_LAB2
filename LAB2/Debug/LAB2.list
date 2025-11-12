@@ -874,7 +874,7 @@ int main(void)
  80006d8:	681b      	ldr	r3, [r3, #0]
  80006da:	2b01      	cmp	r3, #1
  80006dc:	d1a8      	bne.n	8000630 <main+0x40>
-		      shift++;
+    	shift++;
  80006de:	4b13      	ldr	r3, [pc, #76]	; (800072c <main+0x13c>)
  80006e0:	781b      	ldrb	r3, [r3, #0]
  80006e2:	3301      	adds	r3, #1
